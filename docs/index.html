@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WOFF 研修用フォーム</title>
+  <!-- WOFF SDK 読み込み -->
+  <script charset="utf-8" src="https://static.worksmobile.net/sdk/woff/1.0.0/woff.sdk.js"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 20px;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .user-name {
+      font-weight: bold;
+      color: #00c73c;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>研修用 WOFF フォーム</h2>
+    <hr>
+    <div id="status">WOFF 初期化中...</div>
+    <div id="profile" style="display: none;">
+      <p>ようこそ、<span id="display-name" class="user-name"></span> さん！</p>
+      <p><small>User ID: <span id="user-id"></span></small></p>
+    </div>
+  </div>
+
+  <script>
+    // 発行された WOFF ID
+    const MY_WOFF_ID = "KkAAYi7e_cZvemizwWDjXA";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      woff.init({ woffId: MY_WOFF_ID })
+        .then(() => {
+          document.getElementById("status").style.display = "none";
+          document.getElementById("profile").style.display = "block";
+          
+          // LINE WORKS ログインユーザー情報の自動取得
+          return woff.getProfile();
+        })
+        .then((profile) => {
+          document.getElementById("display-name").innerText = profile.displayName;
+          document.getElementById("user-id").innerText = profile.userId;
+        })
+        .catch((err) => {
+          console.error("WOFF エラー:", err);
+          document.getElementById("status").innerText = "WOFFの読み込みに失敗しました。";
+        });
+    });
+  </script>
+</body>
+</html>
