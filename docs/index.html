@@ -6,10 +6,10 @@
   <title>WOFF 研修用フォーム</title>
 
   <!-- External Stylesheet -->
-  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./css/style.css?v=1.0">
 
-  <!-- WOFF SDK -->
-  <script charset="utf-8" src="https://static.worksmobile.net/sdk/woff/1.0.0/woff.sdk.js"></script>
+  <!-- WOFF SDK (deferを追加して確実に読み込ませる) -->
+  <script charset="utf-8" src="https://static.worksmobile.net/sdk/woff/1.0.0/woff.sdk.js" defer></script>
 </head>
 <body>
   <div class="card">
@@ -26,7 +26,7 @@
     </div>
   </div>
 
-  <!-- App Script -->
-  <script src="./js/app.js"></script>
+  <!-- App Script (deferを追加) -->
+  <script src="./js/app.js?v=1.0" defer></script>
 </body>
 </html>
