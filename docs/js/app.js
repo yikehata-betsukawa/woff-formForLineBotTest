@@ -43,8 +43,9 @@ async function initWoffApp() {
     await woff.init({
        woffId: MY_WOFF_ID,
        //scope: ["openid", "user.read"] // ← PC/外部ブラウザ用に OIDC スコープを明示
-       scope: "openid user.read"
+       scope: "openid user.read",
        // （上記コードを開放するときはDeveloper Console 側の「OAuth Scopes」に openid を追加すること）
+       redirectUri: window.location.origin + window.location.pathname // 現在のURLを明示的に指定
     });
 
     // 3. ログインチェック
