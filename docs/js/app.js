@@ -42,8 +42,8 @@ async function initWoffApp() {
     // 2. SDK 初期化
     await woff.init({
        woffId: MY_WOFF_ID,
-       //scope: ["openid", "user.read"] // ← PC/外部ブラウザ用に OIDC スコープを明示
-       // （このコードを開放するときはDeveloper Console 側の「OAuth Scopes」に openid を追加すること）
+       scope: ["openid", "user.read"] // ← PC/外部ブラウザ用に OIDC スコープを明示
+       // （上記コードを開放するときはDeveloper Console 側の「OAuth Scopes」に openid を追加すること）
     });
 
     // 3. ログインチェック
