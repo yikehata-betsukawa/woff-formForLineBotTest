@@ -45,8 +45,7 @@ async function initWoffApp() {
        //scope: ["openid", "user.read"] // ← PC/外部ブラウザ用に OIDC スコープを明示
        scope: "openid user.read",
        // （上記コードを開放するときはDeveloper Console 側の「OAuth Scopes」に openid を追加すること）
-       //redirectUri: window.location.origin + window.location.pathname // 現在のURLを明示的に指定
-       // 上記scopeを開放した際、明示的にリダイレクトURIも記載（Developer Consoleでの設定も））
+       redirectUri: window.location.origin + window.location.pathname // 現在のURLを明示的に指定
     });
 
     // 3. ログインチェック
