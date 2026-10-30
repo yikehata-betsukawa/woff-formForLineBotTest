@@ -101,7 +101,11 @@ async function handleFormSubmit(event) {
     detail: detailVal
   };
 
+
+  if (submitBtn) {
   submitBtn.disabled = true;
+  }
+  
   if (resultEl) {
     resultEl.className = "result-msg";
     resultEl.innerText = "送信中...";
