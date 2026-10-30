@@ -78,11 +78,13 @@ async function initWoffApp() {
 // 5. FastAPI へデータを送信する処理
 async function handleFormSubmit(event) {
   event.preventDefault(); // フォーム送信時のページリロードを防止
+  console.log("★ フォーム送信イベントが発火しました！"); // ← ここを追加
 
   const resultEl = document.getElementById("result-message");
   const submitBtn = document.getElementById("submit-btn");
 
   if (!currentUserProfile) {
+    console.log("★ currentUserProfile が null のため処理を中断しました"); // ← ここを追加
     alert("ユーザー情報が取得できていません。再読み込みしてください。");
     return;
   }
