@@ -40,7 +40,10 @@ async function initWoffApp() {
     statusEl.innerText = "WOFF SDK 初期化中...";
 
     // 2. SDK 初期化
-    await woff.init({ woffId: MY_WOFF_ID });
+    await woff.init({
+       woffId: MY_WOFF_ID,
+       scope: ["openid", "user.read"] // ← PC/外部ブラウザ用に OIDC スコープを明示
+    });
 
     // 3. ログインチェック
     if (!woff.isLoggedIn()) {
@@ -66,5 +69,5 @@ async function initWoffApp() {
   }
 }
 
-// DOM読み込み完了後に実行
+// DOM読み込み完了後に実行（load処理）
 document.addEventListener("DOMContentLoaded", initWoffApp);
