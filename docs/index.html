@@ -16,19 +16,34 @@
 <body>
   <div class="card">
     <h2>研修用 WOFF フォーム</h2>
-    <hr>
-    
-    <!-- エラー・ステータス表示用エリア -->
-    <div id="status" class="status-msg">WOFF 初期化中...</div>
+    <div id="status" class="status-msg">WOFF SDK 初期化中...</div>
 
-    <!-- ユーザー情報表示エリア -->
+    <!-- ログイン後に表示するコンテンツエリア -->
     <div id="profile" class="profile-container">
       <p>ようこそ、<span id="display-name" class="user-name"></span> さん！</p>
-      <p class="sub-info">User ID: <span id="user-id"></span></p>
+      <p class="sub-info">ID: <span id="user-id"></span></p>
+
+      <hr>
+
+      <!-- 入力フォーム -->
+      <form id="woff-form">
+        <div class="form-group">
+          <label for="title">件名</label>
+          <input type="text" id="title" name="title" required placeholder="例：備品購入申請">
+        </div>
+
+        <div class="form-group">
+          <label for="detail">詳細内容</label>
+          <textarea id="detail" name="detail" rows="4" required placeholder="具体的な内容を入力してください"></textarea>
+        </div>
+
+        <button type="submit" id="submitBtn">Botへ送信する</button>
+      </form>
+      
+      <div id="result-message" class="result-msg"></div>
     </div>
   </div>
 
-  <!-- App Script (deferを追加) -->
-  <script src="./js/app.js?v=1.0" defer></script>
+  <script src="app.js?v=1.1"></script>
 </body>
 </html>
