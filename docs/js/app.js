@@ -107,7 +107,7 @@ async function handleFormSubmit(event) {
 
   try {
     // ★ ここに FastAPI のエンドポイント URL を指定します
-    const FASTAPI_ENDPOINT = "https://your-fastapi-server.com/api/send-message";
+    const FASTAPI_ENDPOINT = "https://dev-bcreer.betsukawa.co.jp/vision_api/woff/submit";
 
     const response = await fetch(FASTAPI_ENDPOINT, {
       method: "POST",
