@@ -47,7 +47,9 @@ async function initWoffApp() {
 
     // 3. ログインチェック
     if (!woff.isLoggedIn()) {
-      showDebugError("非ログイン状態です。\nLINE WORKS アプリ内のトーク画面から開いてください。");
+      statusEl.innerText = "ログイン画面へ移動中...";
+      woff.login(); // ← LINE WORKS のログイン画面（OAuth）へリダイレクト
+      // showDebugError("非ログイン状態です。\nLINE WORKS アプリ内のトーク画面から開いてください。");
       return;
     }
 
