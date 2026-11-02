@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>センサーデータ検索</title>
+    <!-- 外部 CSS の読み込み（docs/css 内を参照） -->
+    <link rel="stylesheet" href="./docs/css/machine_search.css">
+    <!-- WOFF SDK の読み込み -->
+    <script charset="utf-8" src="https://static.worksmobile.net/static/woff/sdk/1.0/sdk.js"></script>
+</head>
+<body>
+
+<div class="card">
+    <h3>🔍 センサーデータ検索</h3>
+    <div class="form-group">
+        <label for="sensorSelect">センサー項目</label>
+        <select id="sensorSelect">
+            <option value="排水処理場 最終沈殿槽 pH">排水処理場 最終沈殿槽 pH</option>
+            <option value="試験環境 入力 17">試験環境 入力 17</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="startDate">開始日</label>
+        <input type="date" id="startDate">
+    </div>
+    <div class="form-group">
+        <label for="endDate">終了日</label>
+        <input type="date" id="endDate">
+    </div>
+    <button id="searchBtn">検索実行</button>
+</div>
+
+<div class="card" id="resultCard" style="display: none;">
+    <h4>📊 検索結果</h4>
+    <div id="resultSummary" class="result-summary"></div>
+    
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>日時</th>
+                <th>値</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<!-- 外部 JS の読み込み（docs/js 内を参照） -->
+<script src="./docs/js/machine_search.js"></script>
+</body>
+</html>
