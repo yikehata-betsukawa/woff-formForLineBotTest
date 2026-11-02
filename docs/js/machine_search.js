@@ -1,42 +1,45 @@
 const WOFF_ID = "xexAR6FBXSKjXao8xQ7Wvg";
-const API_BASE_URL = "https://YOUR_FASTAPI_SERVER_DOMAIN"; // FastAPI サーバーの公開ドメイン
+const API_BASE_URL = "https://YOUR_FASTAPI_SERVER_DOMAIN"; // FastAPI サーバーの公開 HTTPS URL
 
 document.addEventListener("DOMContentLoaded", function () {
-    // 1. WOFF SDK 初期化
-    woff.init({ woffId: WOFF_ID })
-        .then(() => {
-            console.log("WOFF 初期化成功");
-            initDates();
-        })
-        .catch((err) => {
-            console.error("WOFF 初期化失敗:", err);
-            initDates();
-        });
+    // 日付の初期設定 (本日 & 昨日)
+    initDates();
 
-    // 2. ラジオボタン切替で日付フォームの表示/非表示を制御
+    // WOFF SDK 初期化
+    if (typeof woff !== "undefined") {
+        woff.init({ woffId: WOFF_ID })
+            .then(() => console.log("WOFF 初期化成功"))
+            .catch((err) => console.error("WOFF 初期化失敗:", err));
+    }
+
+    // ★ Angular の *ngIf 相当の表示切り替えロジック
     const radioButtons = document.querySelectorAll('input[name="searchMode"]');
+    const dateArea = document.getElementById('dateArea');
+
     radioButtons.forEach(radio => {
         radio.addEventListener('change', function () {
-            const dateArea = document.getElementById('dateArea');
             if (this.value === 'history') {
-                dateArea.style.display = 'block';
+                dateArea.style.display = 'block';  // カレンダー表示
             } else {
-                dateArea.style.display = 'none';
+                dateArea.style.display = 'none';   // 非表示
             }
         });
     });
 
-    // 3. 検索ボタンイベント
+    // 検索ボタンクリックイベント
     document.getElementById("searchBtn").addEventListener("click", fetchData);
 });
 
 function initDates() {
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById("endDate").value = today;
-
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    document.getElementById("startDate").value = yesterday.toISOString().split('T')[0];
+    
+    const startDateElem = document.getElementById("startDate");
+    const endDateElem = document.getElementById("endDate");
+
+    if (endDateElem) endDateElem.value = today;
+    if (startDateElem) startDateElem.value = yesterday.toISOString().split('T')[0];
 }
 
 async function fetchData() {
@@ -63,9 +66,7 @@ async function fetchData() {
 
     try {
         const response = await fetch(searchUrl);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const result = await response.json();
 
         if (result.status === "success") {
@@ -87,9 +88,9 @@ function renderResult(mode, result) {
     if (mode === "latest") {
         summary.innerText = `⚡ ${result.sensor_name} (最新値)`;
         container.innerHTML = `
-            <div class="latest-box">
-                <p style="font-size: 18px; font-weight: bold; margin: 0 0 8px 0;">現在値: ${result.value} ${result.unit || ''}</p>
-                <p style="font-size: 12px; color: #666; margin: 0;">更新日時: ${result.datetime}</p>
+            <div style="background:#f8f9fa; border-left:4px solid #00c73c; padding:12px; border-radius:4px;">
+                <p style="font-size:18px; font-weight:bold; margin:0 0 8px 0;">現在値: ${result.value} ${result.unit || ''}</p>
+                <p style="font-size:12px; color:#666; margin:0;">更新日時: ${result.datetime}</p>
             </div>
         `;
     } else {
@@ -97,10 +98,7 @@ function renderResult(mode, result) {
         let tableHtml = `
             <table>
                 <thead>
-                    <tr>
-                        <th>日時</th>
-                        <th>値</th>
-                    </tr>
+                    <tr><th>日時</th><th>値</th></tr>
                 </thead>
                 <tbody>
         `;

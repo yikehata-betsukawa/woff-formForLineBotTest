@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>センサーデータ検索</title>
-
-    <!-- 相対パスの修正 (環境に合わせて ./css/ または ./docs/css/ に変更してください) -->
-    <link rel="stylesheet" href="./css/machine_search.css">
-
+    <!-- CSS の読み込みパス（環境に合わせて調整） -->
+    <link rel="stylesheet" href="./docs/css/machine_search.css">
     <script charset="utf-8" src="https://static.worksmobile.net/static/woff/sdk/1.0/sdk.js"></script>
 </head>
 <body>
@@ -15,7 +13,7 @@
 <div class="card">
     <h3>🔍 センサーデータ検索</h3>
     
-    <!-- 1. 検索モード選択 (ラジオボタン) -->
+    <!-- 1. 検索モード選択 -->
     <div class="form-group">
         <label>検索モード</label>
         <div class="radio-group">
@@ -34,7 +32,7 @@
         <input type="text" id="sensorInput" placeholder="例: 排水処理場 最終沈殿槽 pH" required>
     </div>
 
-    <!-- 3. 日付範囲指定 (履歴モード時のみ表示) -->
+    <!-- 3. 日付範囲指定 (初期は display: none) -->
     <div id="dateArea" class="form-group" style="display: none;">
         <label for="startDate">開始日</label>
         <input type="date" id="startDate">
@@ -46,14 +44,15 @@
     <button id="searchBtn">検索実行</button>
 </div>
 
-<!-- 結果表示カード -->
+<!-- 検索結果表示エリア -->
 <div class="card" id="resultCard" style="display: none;">
     <h4>📊 検索結果</h4>
     <div id="resultSummary" class="result-summary"></div>
     <div id="resultContent"></div>
 </div>
 
-<!-- JavaScriptの参照パスも確認 (./js/ または ./docs/js/) -->
-<script src="./js/machine_search.js"></script>
+<!-- ★ JSファイルの参照パスを環境に合わせて変更してください (例: ./docs/js/machine_search.js) -->
+<script src="./docs/js/machine_search.js"></script>
+
 </body>
 </html>
