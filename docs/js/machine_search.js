@@ -1,40 +1,66 @@
+// 発行された WOFF ID
 const WOFF_ID = "xexAR6FBXSKjXao8xQ7Wvg";
-const API_BASE_URL = "https://YOUR_FASTAPI_SERVER_DOMAIN"; // FastAPI サーバーの公開 HTTPS URL
 
-document.addEventListener("DOMContentLoaded", function () {
-    // 日付の初期設定 (本日 & 昨日)
-    initDates();
+// バックエンド FastAPI のベース URL (サーバーの公開 HTTPS アドレスを指定)
+const API_BASE_URL = "https://dev-bcreer.betsukawa.co.jp";
 
-    // WOFF SDK 初期化
-    if (typeof woff !== "undefined") {
-        woff.init({ woffId: WOFF_ID })
-            .then(() => console.log("WOFF 初期化成功"))
-            .catch((err) => console.error("WOFF 初期化失敗:", err));
+// 画面上にデバッグ・エラーメッセージを表示する補助関数
+function showDebugError(message) {
+    const summaryEl = document.getElementById("resultSummary");
+    const resultCard = document.getElementById("resultCard");
+    
+    if (resultCard) resultCard.style.display = "block";
+    if (summaryEl) {
+        summaryEl.style.color = "#d9534f";
+        summaryEl.style.fontWeight = "bold";
+        summaryEl.innerText = "【エラー】 " + message;
     }
+}
 
-    // ★ Angular の *ngIf 相当の表示切り替えロジック
-    const radioButtons = document.querySelectorAll('input[name="searchMode"]');
-    const dateArea = document.getElementById('dateArea');
+// 予期せぬ JavaScript エラーのグローバルキャッチ
+window.onerror = function (msg, url, line) {
+    showDebugError(`${msg} (Line: ${line})`);
+    return false;
+};
 
-    radioButtons.forEach(radio => {
-        radio.addEventListener('change', function () {
-            if (this.value === 'history') {
-                dateArea.style.display = 'block';  // カレンダー表示
-            } else {
-                dateArea.style.display = 'none';   // 非表示
+// メイン初期化処理
+async function initWoffApp() {
+    try {
+        // 1. 日付の初期設定 (本日 & 昨日)
+        initDates();
+
+        // 2. ラジオボタン切替イベントの登録 (*ngIf 同等ロジック)
+        setupModeToggle();
+
+        // 3. 検索ボタンのイベント登録
+        const searchBtn = document.getElementById("searchBtn");
+        if (searchBtn) {
+            searchBtn.addEventListener("click", fetchData);
+        }
+
+        // 4. WOFF SDK 初期化
+        if (typeof woff !== "undefined") {
+            await woff.init({ woffId: WOFF_ID });
+            console.log("WOFF 初期化成功");
+
+            // ログインチェックとプロフィール取得（必要に応じてログ出力や画面表示に活用）
+            if (woff.isLoggedIn()) {
+                const profile = await woff.getProfile();
+                console.log("ログインユーザー:", profile.displayName, profile.userId);
             }
-        });
-    });
+        }
+    } catch (err) {
+        const errDetail = typeof err === "object" ? JSON.stringify(err) : err;
+        console.error("WOFF 初期化エラー:", errDetail);
+    }
+}
 
-    // 検索ボタンクリックイベント
-    document.getElementById("searchBtn").addEventListener("click", fetchData);
-});
-
+// 日付初期化処理
 function initDates() {
     const today = new Date().toISOString().split('T')[0];
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     const startDateElem = document.getElementById("startDate");
     const endDateElem = document.getElementById("endDate");
 
@@ -42,9 +68,25 @@ function initDates() {
     if (startDateElem) startDateElem.value = yesterday.toISOString().split('T')[0];
 }
 
+// 検索モードラジオボタンの切替制御
+function setupModeToggle() {
+    const radioButtons = document.querySelectorAll('input[name="searchMode"]');
+    const dateArea = document.getElementById('dateArea');
+
+    radioButtons.forEach(radio => {
+        radio.addEventListener('change', function () {
+            if (dateArea) {
+                dateArea.style.display = (this.value === 'history') ? 'block' : 'none';
+            }
+        });
+    });
+}
+
+// バックエンド API 呼び出し
 async function fetchData() {
     const mode = document.querySelector('input[name="searchMode"]:checked').value;
-    const sensorName = document.getElementById("sensorInput").value.trim();
+    const sensorInput = document.getElementById("sensorInput");
+    const sensorName = sensorInput ? sensorInput.value.trim() : "";
 
     if (!sensorName) {
         alert("センサー項目名を入力してください。");
@@ -66,24 +108,33 @@ async function fetchData() {
 
     try {
         const response = await fetch(searchUrl);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`HTTPステータスエラー: ${response.status}`);
+        }
         const result = await response.json();
 
         if (result.status === "success") {
             renderResult(mode, result);
         } else {
-            alert("データの取得に失敗しました。");
+            showDebugError(result.message || "データの取得に失敗しました。");
         }
     } catch (err) {
-        console.error("Fetch エラー:", err);
-        alert("通信エラーが発生しました: " + err.message);
+        const errDetail = typeof err === "object" ? JSON.stringify(err) : err;
+        showDebugError("通信エラーが発生しました: " + errDetail);
     }
 }
 
+// 検索結果描画
 function renderResult(mode, result) {
-    document.getElementById("resultCard").style.display = "block";
+    const resultCard = document.getElementById("resultCard");
     const summary = document.getElementById("resultSummary");
     const container = document.getElementById("resultContent");
+
+    if (resultCard) resultCard.style.display = "block";
+    if (summary) {
+        summary.style.color = "#555";
+        summary.style.fontWeight = "normal";
+    }
 
     if (mode === "latest") {
         summary.innerText = `⚡ ${result.sensor_name} (最新値)`;
@@ -113,3 +164,6 @@ function renderResult(mode, result) {
         container.innerHTML = tableHtml;
     }
 }
+
+// DOM読み込み完了時に実行
+document.addEventListener("DOMContentLoaded", initWoffApp);
