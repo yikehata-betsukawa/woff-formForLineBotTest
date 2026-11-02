@@ -1,8 +1,10 @@
 // 発行された WOFF ID
+// machine_search.js の先頭付近
 const WOFF_ID = "xexAR6FBXSKjXao8xQ7Wvg";
 
 // バックエンド FastAPI のベース URL (サーバーの公開 HTTPS アドレスを指定)
-const API_BASE_URL = "https://dev-bcreer.betsukawa.co.jp/vision_api/";
+// ★ ドメイン名のみを指定（末尾のスラッシュなし）
+const API_BASE_URL = "https://dev-bcreer.betsukawa.co.jp";
 
 // 画面上にデバッグ・エラーメッセージを表示する補助関数
 function showDebugError(message) {
@@ -95,7 +97,7 @@ async function fetchData() {
 
     let searchUrl = "";
     if (mode === "latest") {
-        searchUrl = `${API_BASE_URL}/woff_api/latest?sensor_name=${encodeURIComponent(sensorName)}`;
+        searchUrl = `${API_BASE_URL}/vision_api/woff/latest?sensor_name=${encodeURIComponent(sensorName)}`;
     } else {
         const start = document.getElementById("startDate").value;
         const end = document.getElementById("endDate").value;
@@ -103,7 +105,7 @@ async function fetchData() {
             alert("開始日と終了日を指定してください。");
             return;
         }
-        searchUrl = `${API_BASE_URL}/woff_api/search?sensor_name=${encodeURIComponent(sensorName)}&start_date=${start}&end_date=${end}`;
+        searchUrl = `${API_BASE_URL}/vision_api/woff/search?sensor_name=${encodeURIComponent(sensorName)}&start_date=${start}&end_date=${end}`;
     }
 
     try {
