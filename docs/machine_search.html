@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>センサーデータ検索</title>
-    <link rel="stylesheet" href="./docs/css/machine_search.css">
+
+    <!-- 相対パスの修正 (環境に合わせて ./css/ または ./docs/css/ に変更してください) -->
+    <link rel="stylesheet" href="./css/machine_search.css">
+
     <script charset="utf-8" src="https://static.worksmobile.net/static/woff/sdk/1.0/sdk.js"></script>
 </head>
 <body>
@@ -47,11 +50,10 @@
 <div class="card" id="resultCard" style="display: none;">
     <h4>📊 検索結果</h4>
     <div id="resultSummary" class="result-summary"></div>
-    
-    <!-- 結果コンテンツ表示エリア -->
     <div id="resultContent"></div>
 </div>
 
-<script src="./docs/js/machine_search.js"></script>
+<!-- JavaScriptの参照パスも確認 (./js/ または ./docs/js/) -->
+<script src="./js/machine_search.js"></script>
 </body>
 </html>
