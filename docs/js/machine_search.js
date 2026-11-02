@@ -2,7 +2,7 @@
 const WOFF_ID = "xexAR6FBXSKjXao8xQ7Wvg";
 
 // バックエンド FastAPI のベース URL (サーバーの公開 HTTPS アドレスを指定)
-const API_BASE_URL = "https://dev-bcreer.betsukawa.co.jp";
+const API_BASE_URL = "https://dev-bcreer.betsukawa.co.jp/vision_api/";
 
 // 画面上にデバッグ・エラーメッセージを表示する補助関数
 function showDebugError(message) {
