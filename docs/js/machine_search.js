@@ -37,8 +37,6 @@ window.onerror = function (msg, url, line) {
 // メイン初期化処理
 async function initWoffApp() {
 
-    // 主要要素のキャッシュ
-    cacheElements();
     try {
         // 1. 日付の初期設定 (本日 & 昨日)
         initDates();
