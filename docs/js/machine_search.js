@@ -56,13 +56,17 @@ async function initWoffApp() {
 
         // 5. WOFF SDK 初期化
         if (typeof woff !== "undefined") {
-            await woff.init({ woffId: WOFF_ID });
-            console.log("WOFF 初期化成功");
+            try {
+                await woff.init({ woffId: WOFF_ID });
+                console.log("WOFF 初期化成功");
 
-            // ログインチェックとプロフィール取得（必要に応じてログ出力や画面表示に活用）
-            if (woff.isLoggedIn()) {
-                const profile = await woff.getProfile();
-                console.log("ログインユーザー:", profile.displayName, profile.userId);
+                // ログインチェックとプロフィール取得（必要に応じてログ出力や画面表示に活用）
+                if (woff.isLoggedIn()) {
+                    const profile = await woff.getProfile();
+                    console.log("ログインユーザー:", profile.displayName, profile.userId);
+                }
+            } catch(woffErr) {
+                console.warn("WOFF SDK初期化スキップ（PCブラウザ直開きのため）:", woffErr);
             }
         }
     } catch (err) {
@@ -157,18 +161,24 @@ async function fetchData() {
     const mode = document.querySelector('input[name="searchMode"]:checked').value;
     // 【修正】プルダウンで選択されている項目名を取得
     const itemSelect = document.getElementById("itemSelect");
+    const selectedSensorItemId = itemSelect ? itemSelect.value : ""; // 数値IDを取得
     const selectedOption = itemSelect ? itemSelect.options[itemSelect.selectedIndex] : null;
-    const sensorName = (selectedOption && itemSelect.value) ? selectedOption.textContent : "";
+    //const sensorName = (selectedOption && itemSelect.value) ? selectedOption.textContent : "";
+
+    if (!selectedSensorItemId) {
+    alert("センサー項目を選択してください。");
+    return;
+}
 
 
-    if (!sensorName) {
+    /**if (!sensorName) {
         alert("センサー項目を選択してください。");
         return;
-    }
+    }*/
 
     let searchUrl = "";
     if (mode === "latest") {
-        searchUrl = `${API_BASE_URL}/vision_api/woff/latest?sensor_name=${encodeURIComponent(sensorName)}`;
+        searchUrl = `${API_BASE_URL}/vision_api/woff/latest?sensor_item_id=${selectedSensorItemId}`;
     } else {
         const start = document.getElementById("startDate").value;
         const end = document.getElementById("endDate").value;
@@ -176,7 +186,9 @@ async function fetchData() {
             alert("開始日と終了日を指定してください。");
             return;
         }
-        searchUrl = `${API_BASE_URL}/vision_api/woff/search?sensor_name=${encodeURIComponent(sensorName)}&start_date=${start}&end_date=${end}`;
+        //searchUrl = `${API_BASE_URL}/vision_api/woff/search?sensor_name=${encodeURIComponent(sensorName)}&start_date=${start}&end_date=${end}`;
+        // 履歴検索も同様に sensor_item_id を渡す
+        searchUrl = `${API_BASE_URL}/vision_api/woff/search?sensor_item_id=${selectedSensorItemId}&start_date=${start}&end_date=${end}`;
     }
 
     try {
