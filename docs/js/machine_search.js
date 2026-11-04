@@ -230,21 +230,32 @@ function renderResult(mode, result) {
             </div>
         `;
     } else {
+        // renderResult 関数内の history モード処理
         summary.innerText = `📈 ${result.sensor_name} (${result.period})`;
         let tableHtml = `
-            <table>
+            <table class="history-table" style="width:100%; border-collapse:collapse; margin-top:10px;">
                 <thead>
-                    <tr><th>日時</th><th>値</th></tr>
+                    <tr style="background:#f1f3f5; border-bottom:2px solid #dee2e6;">
+                        <th style="padding:8px; text-align:left;">日時</th>
+                        <th style="padding:8px; text-align:right;">値</th>
+                    </tr>
                 </thead>
                 <tbody>
         `;
+
         if (result.data && result.data.length > 0) {
             result.data.forEach(item => {
-                tableHtml += `<tr><td>${item.datetime}</td><td>${item.value} ${item.unit || ''}</td></tr>`;
+                tableHtml += `
+                    <tr style="border-bottom:1px solid #eee;">
+                        <td style="padding:8px; font-size:13px;">${item.datetime}</td>
+                        <td style="padding:8px; font-size:13px; font-weight:bold; text-align:right;">${item.value} ${item.unit || ''}</td>
+                    </tr>
+                `;
             });
         } else {
-            tableHtml += `<tr><td colspan="2">該当期間のデータが見つかりませんでした</td></tr>`;
+            tableHtml += `<tr><td colspan="2" style="padding:12px; text-align:center;">該当期間のデータが見つかりませんでした</td></tr>`;
         }
+
         tableHtml += `</tbody></table>`;
         container.innerHTML = tableHtml;
     }
