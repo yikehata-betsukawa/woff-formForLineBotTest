@@ -27,11 +27,36 @@
         </div>
     </div>
 
-    <!-- 2. センサー名自由入力 -->
+    <!-- 2. センサー名自由入力 
     <div class="form-group">
         <label for="sensorInput">センサー項目名</label>
         <input type="text" id="sensorInput" placeholder="例: 排水処理場 最終沈殿槽 pH" required>
+    </div>-->
+    <!-- 【修正後】プルダウン（選択式直書き）
+    <div class="form-group">
+        <label for="sensorInput">センサー項目名</label>
+        <select id="sensorInput" required>
+            <option value="">-- センサーを選択してください --</option>
+            <option value="排水処理場 最終沈殿槽 pH">排水処理場 最終沈殿槽 pH</option>
+            <option value="試験環境 入力 17">試験環境 入力 17</option>
+            <option value="1号機 軸受温度">1号機 軸受温度</option>
+        </select>
+    </div> -->
+    
+    <div class="sensor-select-container">
+    <!-- 1段目：データグループ選択 -->
+    <label for="groupSelect">データグループ：</label>
+    <select id="groupSelect">
+        <option value="">読み込み中...</option>
+    </select>
+
+    <!-- 2段目：センサ項目選択 -->
+    <label for="itemSelect">センサ項目：</label>
+    <select id="itemSelect" disabled>
+        <option value="">先にグループを選択してください</option>
+    </select>
     </div>
+
 
     <!-- 3. 日付範囲指定 (初期は display: none) -->
     <div id="dateArea" class="form-group" style="display: none;">

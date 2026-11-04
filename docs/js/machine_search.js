@@ -6,6 +6,15 @@ const WOFF_ID = "xexAR6FBXSKjXao8xQ7Wvg";
 // ★ ドメイン名のみを指定（末尾のスラッシュなし）
 const API_BASE_URL = "https://dev-bcreer.betsukawa.co.jp";
 
+// グローバル変数（取得したツリー構造データを保持）
+let sensorTreeData = [];
+
+// DOM要素のキャッシュ
+const elements = {};
+
+// メイン初期化処理
+document.addEventListener("DOMContentLoaded", initWoffApp);
+
 // 画面上にデバッグ・エラーメッセージを表示する補助関数
 function showDebugError(message) {
     const summaryEl = document.getElementById("resultSummary");
@@ -27,6 +36,9 @@ window.onerror = function (msg, url, line) {
 
 // メイン初期化処理
 async function initWoffApp() {
+
+    // 主要要素のキャッシュ
+    cacheElements();
     try {
         // 1. 日付の初期設定 (本日 & 昨日)
         initDates();
@@ -34,13 +46,17 @@ async function initWoffApp() {
         // 2. ラジオボタン切替イベントの登録 (*ngIf 同等ロジック)
         setupModeToggle();
 
-        // 3. 検索ボタンのイベント登録
+        // 3. 2段プルダウンの初期データ読み込み＆イベント登録 【追加】
+        await fetchSensorTree();
+        setupDropdownEvents();
+
+        // 4. 検索ボタンのイベント登録
         const searchBtn = document.getElementById("searchBtn");
         if (searchBtn) {
             searchBtn.addEventListener("click", fetchData);
         }
 
-        // 4. WOFF SDK 初期化
+        // 5. WOFF SDK 初期化
         if (typeof woff !== "undefined") {
             await woff.init({ woffId: WOFF_ID });
             console.log("WOFF 初期化成功");
@@ -56,6 +72,60 @@ async function initWoffApp() {
         console.error("WOFF 初期化エラー:", errDetail);
     }
 }
+
+// 【追加】階層データを取得し1段目プルダウンをセット
+async function fetchSensorTree() {
+    const groupSelect = document.getElementById("groupSelect");
+    try {
+        const res = await fetch(`${API_BASE_URL}/vision_api/woff/sensor-tree`);
+        const result = await res.json();
+        
+        if (result.status === "success" && result.data) {
+            sensorTreeData = result.data;
+            groupSelect.innerHTML = '<option value="">グループを選択してください</option>';
+            sensorTreeData.forEach(group => {
+                const opt = document.createElement("option");
+                opt.value = group.id;
+                opt.textContent = group.name;
+                groupSelect.appendChild(opt);
+            });
+        }
+    } catch (err) {
+        if (groupSelect) groupSelect.innerHTML = '<option value="">読み込み失敗</option>';
+    }
+}
+
+// 【追加】1段目選択時に2段目の選択肢をセットする連動処理
+function setupDropdownEvents() {
+    const groupSelect = document.getElementById("groupSelect");
+    const itemSelect = document.getElementById("itemSelect");
+
+    if (groupSelect) {
+        groupSelect.addEventListener("change", function () {
+            const selectedGroupId = Number(this.value);
+            itemSelect.innerHTML = '<option value="">項目を選択してください</option>';
+
+            if (!selectedGroupId) {
+                itemSelect.disabled = true;
+                return;
+            }
+
+            const targetGroup = sensorTreeData.find(g => g.id === selectedGroupId);
+            if (targetGroup && targetGroup.items) {
+                targetGroup.items.forEach(item => {
+                    const opt = document.createElement("option");
+                    opt.value = item.id;
+                    opt.textContent = item.name;
+                    itemSelect.appendChild(opt);
+                });
+                itemSelect.disabled = false;
+            } else {
+                itemSelect.disabled = true;
+            }
+        });
+    }
+}
+
 
 // 日付初期化処理
 function initDates() {
@@ -87,11 +157,14 @@ function setupModeToggle() {
 // バックエンド API 呼び出し
 async function fetchData() {
     const mode = document.querySelector('input[name="searchMode"]:checked').value;
-    const sensorInput = document.getElementById("sensorInput");
-    const sensorName = sensorInput ? sensorInput.value.trim() : "";
+    // 【修正】プルダウンで選択されている項目名を取得
+    const itemSelect = document.getElementById("itemSelect");
+    const selectedOption = itemSelect ? itemSelect.options[itemSelect.selectedIndex] : null;
+    const sensorName = (selectedOption && itemSelect.value) ? selectedOption.textContent : "";
+
 
     if (!sensorName) {
-        alert("センサー項目名を入力してください。");
+        alert("センサー項目を選択してください。");
         return;
     }
 
@@ -166,6 +239,3 @@ function renderResult(mode, result) {
         container.innerHTML = tableHtml;
     }
 }
-
-// DOM読み込み完了時に実行
-document.addEventListener("DOMContentLoaded", initWoffApp);
