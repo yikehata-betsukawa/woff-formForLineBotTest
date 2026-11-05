@@ -8,9 +8,7 @@ const API_BASE_URL = "https://dev-bcreer.betsukawa.co.jp";
 
 // グローバル変数（取得したツリー構造データを保持）
 let sensorTreeData = [];
-
-// DOM要素のキャッシュ
-const elements = {};
+let currentSearchResult = null; // ★ 最後に取得した検索結果を保持する変数を追加
 
 // メイン初期化処理
 document.addEventListener("DOMContentLoaded", initWoffApp);
@@ -54,7 +52,13 @@ async function initWoffApp() {
             searchBtn.addEventListener("click", fetchData);
         }
 
-        // 5. WOFF SDK 初期化
+        // 5. トーク送信ボタンのイベント登録 【修正】
+        const sendTalkBtn = document.getElementById("sendTalkBtn");
+        if (sendTalkBtn) {
+            sendTalkBtn.addEventListener("click", sendResultToTalk);
+        }
+
+        // 6. WOFF SDK 初期化
         if (typeof woff !== "undefined") {
             try {
                 await woff.init({ woffId: WOFF_ID });
@@ -75,7 +79,7 @@ async function initWoffApp() {
     }
 }
 
-// 【追加】階層データを取得し1段目プルダウンをセット
+// 階層データを取得し1段目プルダウンをセット
 async function fetchSensorTree() {
     const groupSelect = document.getElementById("groupSelect");
     try {
@@ -97,7 +101,7 @@ async function fetchSensorTree() {
     }
 }
 
-// 【追加】1段目選択時に2段目の選択肢をセットする連動処理
+// 1段目選択時に2段目の選択肢をセットする連動処理
 function setupDropdownEvents() {
     const groupSelect = document.getElementById("groupSelect");
     const itemSelect = document.getElementById("itemSelect");
@@ -258,5 +262,50 @@ function renderResult(mode, result) {
 
         tableHtml += `</tbody></table>`;
         container.innerHTML = tableHtml;
+    }
+}
+
+// ★ トーク送信処理関数（追加）
+async function sendResultToTalk() {
+    if (!currentSearchResult) {
+        alert("送信する検索結果がありません。");
+        return;
+    }
+
+    let textMessage = "";
+    if (currentSearchResult.mode === "latest") {
+        textMessage = `【センサー計測値シェア】\n` +
+                      `■ 項目: ${currentSearchResult.sensor_name}\n` +
+                      `■ 現在値: ${currentSearchResult.value} ${currentSearchResult.unit || ''}\n` +
+                      `■ 更新日時: ${currentSearchResult.datetime}`;
+    } else {
+        const latestRow = currentSearchResult.data && currentSearchResult.data.length > 0 
+            ? currentSearchResult.data[currentSearchResult.data.length - 1] 
+            : null;
+        
+        const latestValText = latestRow ? `${latestRow.value} ${latestRow.unit || ''}` : "データなし";
+        textMessage = `【センサー履歴データシェア】\n` +
+                      `■ 項目: ${currentSearchResult.sensor_name}\n` +
+                      `■ 対象期間: ${currentSearchResult.period}\n` +
+                      `■ 直近の計測値: ${latestValText}`;
+    }
+
+    // WOFF 環境チェック
+    if (typeof woff !== "undefined" && woff.isInClient()) {
+        try {
+            await woff.sendMessages({
+                messages: [
+                    {
+                        type: 'text',
+                        text: textMessage
+                    }
+                ]
+            });
+            alert('トークルームに送信しました！');
+        } catch (error) {
+            alert('送信に失敗しました: ' + (error.message || JSON.stringify(error)));
+        }
+    } else {
+        alert('PCブラウザ等の外部環境からはトークルーム送信を利用できません。LINE WORKS アプリ内からご利用ください。');
     }
 }
