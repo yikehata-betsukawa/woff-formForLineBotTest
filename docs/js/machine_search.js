@@ -368,13 +368,27 @@ function changePage(direction) {
     renderResult("history", currentSearchResult);
 }
 
-// ★ トーク送信処理関数（追加）
+// ★ トーク送信処理関数（ログインチェック強化版）
 async function sendResultToTalk() {
     if (!currentSearchResult) {
         alert("送信する検索結果がありません。");
         return;
     }
 
+    // 1. WOFF 環境チェック
+    if (typeof woff === "undefined" || !woff.isInClient()) {
+        alert('PCブラウザ等の外部環境からはトークルーム送信を利用できません。LINE WORKS アプリ内からご利用ください。');
+        return;
+    }
+
+    // 2. ログインチェック＆自動ログイン誘導（Access_token エラー防止）
+    if (!woff.isLoggedIn()) {
+        console.warn("未ログイン状態のためログインを実行します");
+        woff.login();
+        return;
+    }
+
+    // 3. 送信メッセージの構築
     let textMessage = "";
     if (currentSearchResult.mode === "latest") {
         textMessage = `【センサー計測値シェア】\n` +
@@ -393,22 +407,19 @@ async function sendResultToTalk() {
                       `■ 直近の計測値: ${latestValText}`;
     }
 
-    // WOFF 環境チェック
-    if (typeof woff !== "undefined" && woff.isInClient()) {
-        try {
-            await woff.sendMessages({
-                messages: [
-                    {
-                        type: 'text',
-                        text: textMessage
-                    }
-                ]
-            });
-            alert('トークルームに送信しました！');
-        } catch (error) {
-            alert('送信に失敗しました: ' + (error.message || JSON.stringify(error)));
-        }
-    } else {
-        alert('PCブラウザ等の外部環境からはトークルーム送信を利用できません。LINE WORKS アプリ内からご利用ください。');
+    // 4. トークルームへの送信実行
+    try {
+        await woff.sendMessages({
+            messages: [
+                {
+                    type: 'text',
+                    text: textMessage
+                }
+            ]
+        });
+        alert('トークルームに送信しました！');
+    } catch (error) {
+        console.error("sendMessagesエラー:", error);
+        alert('送信に失敗しました: ' + (error.message || JSON.stringify(error)));
     }
 }
