@@ -87,12 +87,15 @@ async function fetchSensorTree() {
         const result = await res.json();
         
         if (result.status === "success" && result.data) {
+            // 1. APIから返ってきた JSON の "data"（グループの配列）をそのままグローバル変数に保存する
             sensorTreeData = result.data;
+            // 2. 1段目プルダウンをリセット
             groupSelect.innerHTML = '<option value="">グループを選択してください</option>';
+            // 3. グループ（例: "環境センサー"）ごとに <option> を作って 1 段目に追加
             sensorTreeData.forEach(group => {
                 const opt = document.createElement("option");
-                opt.value = group.id;
-                opt.textContent = group.name;
+                opt.value = group.id;          // <option value="90001">
+                opt.textContent = group.name;  // 環境センサー
                 groupSelect.appendChild(opt);
             });
         }
@@ -107,26 +110,43 @@ function setupDropdownEvents() {
     const itemSelect = document.getElementById("itemSelect");
 
     if (groupSelect) {
+        // ユーザーが 1 段目プルダウンで何かを選んだときに発火する
         groupSelect.addEventListener("change", function () {
+            // 例: ユーザーが「環境センサー」を選ぶと this.value は "90001"（数値の 90001 に変換）
             const selectedGroupId = Number(this.value);
+
+            // 2段目プルダウンの選択肢を一度クリアする
             itemSelect.innerHTML = '<option value="">項目を選択してください</option>';
 
+            // グループが未選択（初期状態）に戻された場合は 2 段目を非活性にして終了
             if (!selectedGroupId) {
                 itemSelect.disabled = true;
                 return;
             }
 
+            // 1. 保存しておいた sensorTreeData から、id が 90001 であるグループオブジェクトを探す
+            //    -> targetGroup に {"id": 90001, "name": "環境センサー", "items": [...]} が入る
             const targetGroup = sensorTreeData.find(g => g.id === selectedGroupId);
+
+            // 2. 該当するグループが見つかり、かつその中に items 配列が存在する場合
             if (targetGroup && targetGroup.items) {
+
+                // 3. items 配列（"KH 温度", "KH 相対湿度" など）を 1 件ずつループ処理
                 targetGroup.items.forEach(item => {
                     const opt = document.createElement("option");
-                    opt.value = item.id;
-                    opt.textContent = item.name;
-                    // ★ データ属性として userGroupId と dataGroupId を埋め込んでおく
-                    opt.dataset.userGroupId = item.userGroupId || targetGroup.userGroupId;
-                    opt.dataset.dataGroupId = targetGroup.id;
+                    opt.value = item.id;  // <option value="90020004">
+                    opt.textContent = item.name;  // KH 温度
+
+                    // 4. 後で検索実行するときのためにカスタムデータ属性 (data-*) に ID を埋め込む
+                    //    item.userGroupId (900) があればそれを使い、無ければ親グループの userGroupId (900) を使う
+                    opt.dataset.userGroupId = item.userGroupId || targetGroup.userGroupId;// data-user-group-id="900"
+                    opt.dataset.dataGroupId = targetGroup.id; // data-data-group-id="90001"
+
+                    // 5. 作成した <option> を 2 段目プルダウンに追加
                     itemSelect.appendChild(opt);
                 });
+
+                // 6. 選択肢が入ったので 2 段目プルダウンの非活性を解除（操作可能にする）
                 itemSelect.disabled = false;
             } else {
                 itemSelect.disabled = true;
