@@ -38,42 +38,13 @@ document.addEventListener("DOMContentLoaded", initWoffApp);
 async function initWoffApp() {
 
     try {
-        // 1. 日付の初期設定 (本日 & 昨日)
-        initDates();
-
-        // 2. ラジオボタン切替イベントの登録 (*ngIf 同等ロジック)
-        setupModeToggle();
-
-        // 3. 2段プルダウンの初期データ読み込み＆イベント登録 【追加】
-        await fetchSensorTree();
-        setupDropdownEvents();
-
-        // 4. 検索ボタンのイベント登録
-        const searchBtn = document.getElementById("searchBtn");
-        if (searchBtn) {
-            searchBtn.addEventListener("click", fetchData);
-        }
-
-        // ★ ページネーションボタンのイベント登録（安全対策を追加）
-        const prevBtn = document.getElementById("prevPageBtn");
-        const nextBtn = document.getElementById("nextPageBtn");
-        if (prevBtn) prevBtn.addEventListener("click", () => changePage(-1));
-        if (nextBtn) nextBtn.addEventListener("click", () => changePage(1));
-
-        // 5. トーク送信ボタンのイベント登録 【修正】
-        const sendTalkBtn = document.getElementById("sendTalkBtn");
-        if (sendTalkBtn) {
-            sendTalkBtn.addEventListener("click", sendResultToTalk);
-        }
-
-
-        // 6. WOFF SDK 初期化
+        // 1. WOFF SDK 初期化（最優先で実行し、LINE WORKSアプリ内の認証完了を待つ）
         if (typeof woff !== "undefined") {
             try {
                 await woff.init({ woffId: WOFF_ID });
                 console.log("WOFF 初期化成功");
 
-                // ログインチェックとプロフィール取得（必要に応じてログ出力や画面表示に活用）
+                // ログインチェックとプロフィール取得
                 if (woff.isLoggedIn()) {
                     const profile = await woff.getProfile();
                     console.log("ログインユーザー:", profile.displayName, profile.userId);
@@ -82,6 +53,35 @@ async function initWoffApp() {
                 console.warn("WOFF SDK初期化スキップ（PCブラウザ直開きのため）:", woffErr);
             }
         }
+
+        // 2. 日付の初期設定 (1時間前 〜 現在)
+        initDates();
+
+        // 3. ラジオボタン切替イベントの登録 (*ngIf 同等ロジック)
+        setupModeToggle();
+
+        // 4. 2段プルダウンの初期データ読み込み＆イベント登録 【追加】
+        await fetchSensorTree();
+        setupDropdownEvents();
+
+        // 5. 検索ボタンのイベント登録
+        const searchBtn = document.getElementById("searchBtn");
+        if (searchBtn) {
+            searchBtn.addEventListener("click", fetchData);
+        }
+
+        // 6. ページネーションボタンのイベント登録（安全対策を追加）
+        const prevBtn = document.getElementById("prevPageBtn");
+        const nextBtn = document.getElementById("nextPageBtn");
+        if (prevBtn) prevBtn.addEventListener("click", () => changePage(-1));
+        if (nextBtn) nextBtn.addEventListener("click", () => changePage(1));
+
+        // 7. トーク送信ボタンのイベント登録 【修正】
+        const sendTalkBtn = document.getElementById("sendTalkBtn");
+        if (sendTalkBtn) {
+            sendTalkBtn.addEventListener("click", sendResultToTalk);
+        }
+
     } catch (err) {
         const errDetail = typeof err === "object" ? JSON.stringify(err) : err;
         console.error("WOFF 初期化エラー:", errDetail);
