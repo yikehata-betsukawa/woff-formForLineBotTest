@@ -8,6 +8,11 @@
     <link rel="stylesheet" href="./css/machine_search.css">
     <!-- <script charset="utf-8" src="https://static.worksmobile.net/static/woff/sdk/1.0/sdk.js"></script>-->
     <script charset="utf-8" src="https://static.worksmobile.net/static/wm/woff/edge/3.7.4/sdk.js"> </script>
+    <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
+    <script>
+    // vConsole の初期化（スマホ画面右下に緑の「vConsole」ボタンが出現します）
+    var vConsole = new VConsole();
+    </script>
 </head>
 <body>
 
@@ -76,7 +81,7 @@
     <h4>📊 検索結果</h4>
     <div id="resultSummary" class="result-summary"></div>
     <div id="resultContent"></div>
-    
+
     <!-- ★ ページネーションコントロールの追加 -->
     <div id="paginationArea" style="display: none; justify-content: space-between; align-items: center; margin-top: 12px;">
         <button id="prevPageBtn" class="btn-secondary" style="width: 30%; padding: 6px;">◀ 前へ</button>

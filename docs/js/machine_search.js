@@ -43,9 +43,14 @@ async function initWoffApp() {
             try {
                 await woff.init({ woffId: WOFF_ID });
                 console.log("WOFF 初期化成功");
-                // ★ アクセストークンが実際に発行されているかログ確認
+
+                // 2. ログイン状態の判定
+                const isLoggedIn = woff.isLoggedIn();
+                console.log("【CHECK】ログイン状態 (isLoggedIn):", isLoggedIn);
+
+                // 3. Access Token の直接取得テスト
                 const accessToken = woff.getAccessToken();
-                console.log("現在の Access Token:", accessToken ? "取得成功" : "取得失敗 (Null)");
+                console.log("【CHECK】Access Token:", accessToken);
 
                 // ★ Access_token エラー防止：未ログイン時は自動ログインを実行
                 if (!woff.isLoggedIn()) {
