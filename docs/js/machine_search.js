@@ -98,6 +98,7 @@ async function fetchSensorTree() {
         if (result.status === "success" && result.data) {
             // 1. APIから返ってきた JSON の "data"（グループの配列）をそのままグローバル変数に保存する
             sensorTreeData = result.data;
+            console.log("取得したセンサツリー構造:", sensorTreeData);
             // 2. 1段目プルダウンをリセット
             groupSelect.innerHTML = '<option value="">グループを選択してください</option>';
             // 3. グループ（例: "環境センサー"）ごとに <option> を作って 1 段目に追加
@@ -123,6 +124,7 @@ function setupDropdownEvents() {
         groupSelect.addEventListener("change", function () {
             // 例: ユーザーが「環境センサー」を選ぶと this.value は "90001"（数値の 90001 に変換）
             const selectedGroupId = Number(this.value);
+            console.log("選択されたグループID:", selectedGroupId);
 
             // 2段目プルダウンの選択肢を一度クリアする
             itemSelect.innerHTML = '<option value="">項目を選択してください</option>';
@@ -136,6 +138,7 @@ function setupDropdownEvents() {
             // 1. 保存しておいた sensorTreeData から、id が 90001 であるグループオブジェクトを探す
             //    -> targetGroup に {"id": 90001, "name": "環境センサー", "items": [...]} が入る
             const targetGroup = sensorTreeData.find(g => g.id === selectedGroupId);
+            console.log("抽出された項目一覧(items):", targetGroup ? targetGroup.items : []);
 
             // 2. 該当するグループが見つかり、かつその中に items 配列が存在する場合
             if (targetGroup && targetGroup.items) {
