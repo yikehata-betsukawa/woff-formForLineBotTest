@@ -9,6 +9,8 @@ const API_BASE_URL = "https://dev-bcreer.betsukawa.co.jp";
 // グローバル変数（取得したツリー構造データを保持）
 let sensorTreeData = [];
 let currentSearchResult = null; // ★ 最後に取得した検索結果を保持する変数を追加
+let currentPage = 1; // ページ制御用変数を追加
+const ITEMS_PER_PAGE = 10; // 1ページあたり10件表示
 
 
 // 画面上にデバッグ・エラーメッセージを表示する補助関数
@@ -51,6 +53,10 @@ async function initWoffApp() {
         if (searchBtn) {
             searchBtn.addEventListener("click", fetchData);
         }
+
+        // ★ ページネーションボタンのイベント登録
+        document.getElementById("prevPageBtn").addEventListener("click", () => changePage(-1));
+        document.getElementById("nextPageBtn").addEventListener("click", () => changePage(1));
 
         // 5. トーク送信ボタンのイベント登録 【修正】
         const sendTalkBtn = document.getElementById("sendTalkBtn");
@@ -156,17 +162,23 @@ function setupDropdownEvents() {
 }
 
 
-// 日付初期化処理
+// 日時の初期選択（昨日 00:00:00 〜 今日の現在時刻）
 function initDates() {
-    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
+
+    const toLocalISO = (dt) => {
+        const offset = dt.getTimezoneOffset() * 60000;
+        return new Date(dt.getTime() - offset).toISOString().slice(0, 19);
+    };
 
     const startDateElem = document.getElementById("startDate");
     const endDateElem = document.getElementById("endDate");
 
-    if (endDateElem) endDateElem.value = today;
-    if (startDateElem) startDateElem.value = yesterday.toISOString().split('T')[0];
+    if (startDateElem) startDateElem.value = toLocalISO(yesterday);
+    if (endDateElem) endDateElem.value = toLocalISO(now);
 }
 
 // 検索モードラジオボタンの切替制御
@@ -190,7 +202,6 @@ async function fetchData() {
     const itemSelect = document.getElementById("itemSelect");
     const selectedSensorItemId = itemSelect ? itemSelect.value : ""; // 数値IDを取得
     const selectedOption = itemSelect ? itemSelect.options[itemSelect.selectedIndex] : null;
-    //const sensorName = (selectedOption && itemSelect.value) ? selectedOption.textContent : "";
 
     if (!selectedSensorItemId) {
         alert("センサー項目を選択してください。");
@@ -202,23 +213,24 @@ async function fetchData() {
     const userGroupId = selectedOption.dataset.userGroupId;
     const dataGroupId = selectedOption.dataset.dataGroupId || document.getElementById("groupSelect").value;
 
-    /**if (!sensorName) {
-        alert("センサー項目を選択してください。");
-        return;
-    }*/
-
     let searchUrl = "";
     if (mode === "latest") {
         searchUrl = `${API_BASE_URL}/vision_api/woff/latest?sensor_item_id=${selectedSensorItemId}&user_group_id=${userGroupId}&data_group_id=${dataGroupId}`;
     } else {
-        const start = document.getElementById("startDate").value;
-        const end = document.getElementById("endDate").value;
-        if (!start || !end) {
+        const startVal = document.getElementById("startDate").value;
+        const endVal = document.getElementById("endDate").value;
+        if (!startVal || !endVal) {
             alert("開始日と終了日を指定してください。");
             return;
         }
+
+        // datetime-local の 'T' をスペースに変換し、秒を整形
+        const formatStart = startVal.replace("T", " ") + (startVal.length === 16 ? ":00" : "");
+        const formatEnd = endVal.replace("T", " ") + (endVal.length === 16 ? ":00" : "");
+        
         // ★ マスタから取得された値を使ってURLを作成
-        searchUrl = `${API_BASE_URL}/vision_api/woff/search?sensor_item_id=${sensorItemId}&start_date=${start}&end_date=${end}&user_group_id=${userGroupId}&data_group_id=${dataGroupId}`;
+        //searchUrl = `${API_BASE_URL}/vision_api/woff/search?sensor_item_id=${sensorItemId}&start_date=${start}&end_date=${end}&user_group_id=${userGroupId}&data_group_id=${dataGroupId}`;
+        searchUrl = `${API_BASE_URL}/vision_api/woff/search?sensor_item_id=${sensorItemId}&start_date=${encodeURIComponent(formatStart)}&end_date=${encodeURIComponent(formatEnd)}&user_group_id=${userGroupId}&data_group_id=${dataGroupId}`;
     }
 
     try {
@@ -231,6 +243,7 @@ async function fetchData() {
         if (result.status === "success") {
             // ★ 検索結果を保持
             currentSearchResult = { mode, ...result };
+            currentPage = 1; // 検索実行時は1ページ目にリセット
             renderResult(mode, result);
         } else {
             showDebugError(result.message || "データの取得に失敗しました。");
@@ -246,6 +259,7 @@ function renderResult(mode, result) {
     const resultCard = document.getElementById("resultCard");
     const summary = document.getElementById("resultSummary");
     const container = document.getElementById("resultContent");
+    const paginationArea = document.getElementById("paginationArea");
 
     if (resultCard) resultCard.style.display = "block";
     if (summary) {
@@ -254,6 +268,7 @@ function renderResult(mode, result) {
     }
 
     if (mode === "latest") {
+        paginationArea.style.display = "none";
         summary.innerText = `⚡ ${result.sensor_name} (最新値)`;
         container.innerHTML = `
             <div style="background:#f8f9fa; border-left:4px solid #00c73c; padding:12px; border-radius:4px;">
@@ -264,6 +279,19 @@ function renderResult(mode, result) {
     } else {
         // renderResult 関数内の history モード処理
         summary.innerText = `📈 ${result.sensor_name} (${result.period})`;
+
+        const totalItems = result.data ? result.data.length : 0;
+        if (totalItems === 0) {
+            paginationArea.style.display = "none";
+            container.innerHTML = `<p style="text-align:center; padding:12px;">該当期間のデータが見つかりませんでした</p>`;
+            return;
+        }
+
+        // ページ切り出しデータ
+        const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const pageData = result.data.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
         let tableHtml = `
             <table class="history-table" style="width:100%; border-collapse:collapse; margin-top:10px;">
                 <thead>
@@ -275,22 +303,38 @@ function renderResult(mode, result) {
                 <tbody>
         `;
 
-        if (result.data && result.data.length > 0) {
-            result.data.forEach(item => {
-                tableHtml += `
-                    <tr style="border-bottom:1px solid #eee;">
-                        <td style="padding:8px; font-size:13px;">${item.datetime}</td>
-                        <td style="padding:8px; font-size:13px; font-weight:bold; text-align:right;">${item.value} ${item.unit || ''}</td>
-                    </tr>
-                `;
-            });
-        } else {
-            tableHtml += `<tr><td colspan="2" style="padding:12px; text-align:center;">該当期間のデータが見つかりませんでした</td></tr>`;
-        }
+        pageData.forEach(item => {
+            tableHtml += `
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:8px; font-size:13px;">${item.datetime}</td>
+                    <td style="padding:8px; font-size:13px; font-weight:bold; text-align:right;">${item.value} ${item.unit || ''}</td>
+                </tr>
+            `;
+        });
 
         tableHtml += `</tbody></table>`;
         container.innerHTML = tableHtml;
+
+        // ページネーションコントロール更新
+        paginationArea.style.display = "flex";
+        document.getElementById("pageInfo").innerText = `${currentPage} / ${totalPages} ページ (全${totalItems}件)`;
+        document.getElementById("prevPageBtn").disabled = (currentPage === 1);
+        document.getElementById("nextPageBtn").disabled = (currentPage === totalPages);
+
     }
+}
+
+// ページ切り替え処理
+function changePage(direction) {
+    if (!currentSearchResult || !currentSearchResult.data) return;
+    
+    const totalPages = Math.ceil(currentSearchResult.data.length / ITEMS_PER_PAGE);
+    currentPage += direction;
+
+    if (currentPage < 1) currentPage = 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    renderResult("history", currentSearchResult);
 }
 
 // ★ トーク送信処理関数（追加）

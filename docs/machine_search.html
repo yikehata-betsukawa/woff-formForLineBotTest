@@ -59,12 +59,13 @@
 
 
     <!-- 3. 日付範囲指定 (初期は display: none) -->
+    <!-- 3. 日時範囲指定 (datetime-localに変更) -->
     <div id="dateArea" class="form-group" style="display: none;">
-        <label for="startDate">開始日</label>
-        <input type="date" id="startDate">
+        <label for="startDate">開始日時</label>
+        <input type="datetime-local" id="startDate" step="1">
         
-        <label for="endDate" style="margin-top: 8px;">終了日</label>
-        <input type="date" id="endDate">
+        <label for="endDate" style="margin-top: 8px;">終了日時</label>
+        <input type="datetime-local" id="endDate" step="1">
     </div>
 
     <button id="searchBtn">検索実行</button>
@@ -75,6 +76,13 @@
     <h4>📊 検索結果</h4>
     <div id="resultSummary" class="result-summary"></div>
     <div id="resultContent"></div>
+    
+    <!-- ★ ページネーションコントロールの追加 -->
+    <div id="paginationArea" style="display: none; justify-content: space-between; align-items: center; margin-top: 12px;">
+        <button id="prevPageBtn" class="btn-secondary" style="width: 30%; padding: 6px;">◀ 前へ</button>
+        <span id="pageInfo" style="font-size: 13px; color: #666;">1 / 1 ページ</span>
+        <button id="nextPageBtn" class="btn-secondary" style="width: 30%; padding: 6px;">次へ ▶</button>
+    </div>
 
     <!-- ★ 送信ボタンを追加 -->
     <button id="sendTalkBtn" class="btn-secondary" style="margin-top: 15px; width: 100%;">
