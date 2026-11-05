@@ -66,10 +66,8 @@ async function initWoffApp() {
             sendTalkBtn.addEventListener("click", sendResultToTalk);
         }
 
-        // 6. プルダウンの準備が完全に整ってから URL パラメータ処理を実行 ★★★
-        await handleUrlQueryParams();
 
-        // 7. WOFF SDK 初期化
+        // 6. WOFF SDK 初期化
         if (typeof woff !== "undefined") {
             try {
                 await woff.init({ woffId: WOFF_ID });
@@ -210,77 +208,6 @@ function initDates() {
     if (startDateElem) startDateElem.value = toLocalISO(oneHourAgo);
     if (endDateElem) endDateElem.value = toLocalISO(now);
 }
-
-// URLパラメータを読み込んで自動フォームセット ＆ 検索実行する関数
-async function handleUrlQueryParams() {
-    let search = window.location.search;
-    let urlParams = new URLSearchParams(search);
-
-    // liff.state が入っている場合はデコードして上書き
-    if (urlParams.has("liff.state")) {
-        search = decodeURIComponent(urlParams.get("liff.state"));
-        urlParams = new URLSearchParams(search); // 再代入にする
-    }
-
-    // パラメータが存在しない場合は終了
-    if (!urlParams.has("item_id") && !urlParams.has("mode")) return;
-
-    const mode = urlParams.get("mode") || "history";
-    const groupId = urlParams.get("group_id");
-    const itemId = urlParams.get("item_id");
-    const start = urlParams.get("start");
-    const end = urlParams.get("end");
-
-    // 1. 検索モードのラジオボタンをセット ＆ 表示切替
-    const radioBtn = document.querySelector(`input[name="searchMode"][value="${mode}"]`);
-    if (radioBtn) {
-        radioBtn.checked = true;
-        const dateArea = document.getElementById('dateArea');
-        if (dateArea) {
-            dateArea.style.display = (mode === 'history') ? 'block' : 'none';
-        }
-    }
-
-    // 2. 1段目（グループ）プルダウンの選択
-    const groupSelect = document.getElementById("groupSelect");
-    if (groupSelect && groupId) {
-        groupSelect.value = groupId;
-        
-        // 1段目の change 処理と同等の2段目生成を明示的に呼び出し
-        const targetGroup = sensorTreeData.find(g => String(g.id) === String(groupId));
-        const itemSelect = document.getElementById("itemSelect");
-
-        if (targetGroup && targetGroup.items && itemSelect) {
-            itemSelect.innerHTML = '<option value="">項目を選択してください</option>';
-            targetGroup.items.forEach(item => {
-                const opt = document.createElement("option");
-                opt.value = item.id;
-                opt.textContent = item.name;
-                opt.dataset.userGroupId = item.userGroupId || targetGroup.userGroupId;
-                opt.dataset.dataGroupId = targetGroup.id;
-                itemSelect.appendChild(opt);
-            });
-            itemSelect.disabled = false;
-
-            // 3. 2段目（項目）プルダウンの選択
-            if (itemId) {
-                itemSelect.value = itemId;
-            }
-        }
-    }
-
-    // 4. 日時のセット（履歴モードの場合）
-    if (mode === "history") {
-        if (start) document.getElementById("startDate").value = start;
-        if (end) document.getElementById("endDate").value = end;
-    }
-
-    // 5. 全ての選択完了後に自動検索実行
-    if (itemId) {
-        await fetchData();
-    }
-}
-
 
 // 検索モードラジオボタンの切替制御
 function setupModeToggle() {
