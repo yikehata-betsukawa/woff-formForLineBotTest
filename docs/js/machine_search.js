@@ -186,13 +186,15 @@ async function fetchData() {
     } else {
         const start = document.getElementById("startDate").value;
         const end = document.getElementById("endDate").value;
+        const selectedGroupId = document.getElementById("groupSelect").value; // ★ 追加
         if (!start || !end) {
             alert("開始日と終了日を指定してください。");
             return;
         }
         //searchUrl = `${API_BASE_URL}/vision_api/woff/search?sensor_name=${encodeURIComponent(sensorName)}&start_date=${start}&end_date=${end}`;
         // 履歴検索も同様に sensor_item_id を渡す
-        searchUrl = `${API_BASE_URL}/vision_api/woff/search?sensor_item_id=${selectedSensorItemId}&start_date=${start}&end_date=${end}`;
+        // ★ user_group_id と data_group_id パラメータを追加
+        searchUrl = `${API_BASE_URL}/vision_api/woff/search?sensor_item_id=${selectedSensorItemId}&start_date=${start}&end_date=${end}&data_group_id=${selectedGroupId}&user_group_id=900`;
     }
 
     try {
