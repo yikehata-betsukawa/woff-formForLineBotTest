@@ -122,6 +122,9 @@ function setupDropdownEvents() {
                     const opt = document.createElement("option");
                     opt.value = item.id;
                     opt.textContent = item.name;
+                    // ★ データ属性として userGroupId と dataGroupId を埋め込んでおく
+                    opt.dataset.userGroupId = item.userGroupId || targetGroup.userGroupId;
+                    opt.dataset.dataGroupId = targetGroup.id;
                     itemSelect.appendChild(opt);
                 });
                 itemSelect.disabled = false;
@@ -170,10 +173,14 @@ async function fetchData() {
     //const sensorName = (selectedOption && itemSelect.value) ? selectedOption.textContent : "";
 
     if (!selectedSensorItemId) {
-    alert("センサー項目を選択してください。");
-    return;
-}
+        alert("センサー項目を選択してください。");
+        return;
+    }
 
+    const sensorItemId = itemSelect.value;
+    // ★ <option> の dataset から自動抽出（なければフォールバック）
+    const userGroupId = selectedOption.dataset.userGroupId;
+    const dataGroupId = selectedOption.dataset.dataGroupId || document.getElementById("groupSelect").value;
 
     /**if (!sensorName) {
         alert("センサー項目を選択してください。");
@@ -182,19 +189,16 @@ async function fetchData() {
 
     let searchUrl = "";
     if (mode === "latest") {
-        searchUrl = `${API_BASE_URL}/vision_api/woff/latest?sensor_item_id=${selectedSensorItemId}`;
+        searchUrl = `${API_BASE_URL}/vision_api/woff/latest?sensor_item_id=${selectedSensorItemId}&user_group_id=${userGroupId}&data_group_id=${dataGroupId}`;
     } else {
         const start = document.getElementById("startDate").value;
         const end = document.getElementById("endDate").value;
-        const selectedGroupId = document.getElementById("groupSelect").value; // ★ 追加
         if (!start || !end) {
             alert("開始日と終了日を指定してください。");
             return;
         }
-        //searchUrl = `${API_BASE_URL}/vision_api/woff/search?sensor_name=${encodeURIComponent(sensorName)}&start_date=${start}&end_date=${end}`;
-        // 履歴検索も同様に sensor_item_id を渡す
-        // ★ user_group_id と data_group_id パラメータを追加
-        searchUrl = `${API_BASE_URL}/vision_api/woff/search?sensor_item_id=${selectedSensorItemId}&start_date=${start}&end_date=${end}&data_group_id=${selectedGroupId}&user_group_id=900`;
+        // ★ マスタから取得された値を使ってURLを作成
+        searchUrl = `${API_BASE_URL}/vision_api/woff/search?sensor_item_id=${sensorItemId}&start_date=${start}&end_date=${end}&user_group_id=${userGroupId}&data_group_id=${dataGroupId}`;
     }
 
     try {
