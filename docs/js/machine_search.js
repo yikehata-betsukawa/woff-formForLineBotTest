@@ -10,8 +10,6 @@ const API_BASE_URL = "https://dev-bcreer.betsukawa.co.jp";
 let sensorTreeData = [];
 let currentSearchResult = null; // ★ 最後に取得した検索結果を保持する変数を追加
 
-// メイン初期化処理
-document.addEventListener("DOMContentLoaded", initWoffApp);
 
 // 画面上にデバッグ・エラーメッセージを表示する補助関数
 function showDebugError(message) {
@@ -33,6 +31,8 @@ window.onerror = function (msg, url, line) {
 };
 
 // メイン初期化処理
+document.addEventListener("DOMContentLoaded", initWoffApp);
+
 async function initWoffApp() {
 
     try {
@@ -203,6 +203,8 @@ async function fetchData() {
         const result = await response.json();
 
         if (result.status === "success") {
+            // ★ 検索結果を保持
+            currentSearchResult = { mode, ...result };
             renderResult(mode, result);
         } else {
             showDebugError(result.message || "データの取得に失敗しました。");
