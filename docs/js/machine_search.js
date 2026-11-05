@@ -54,9 +54,11 @@ async function initWoffApp() {
             searchBtn.addEventListener("click", fetchData);
         }
 
-        // ★ ページネーションボタンのイベント登録
-        document.getElementById("prevPageBtn").addEventListener("click", () => changePage(-1));
-        document.getElementById("nextPageBtn").addEventListener("click", () => changePage(1));
+        // ★ ページネーションボタンのイベント登録（安全対策を追加）
+        const prevBtn = document.getElementById("prevPageBtn");
+        const nextBtn = document.getElementById("nextPageBtn");
+        if (prevBtn) prevBtn.addEventListener("click", () => changePage(-1));
+        if (nextBtn) nextBtn.addEventListener("click", () => changePage(1));
 
         // 5. トーク送信ボタンのイベント登録 【修正】
         const sendTalkBtn = document.getElementById("sendTalkBtn");
@@ -169,9 +171,11 @@ function initDates() {
     yesterday.setDate(yesterday.getDate() - 1);
     yesterday.setHours(0, 0, 0, 0);
 
+    // datetime-local 形式 (YYYY-MM-DDTHH:mm) に成形 (.slice(0, 16) に修正)
     const toLocalISO = (dt) => {
         const offset = dt.getTimezoneOffset() * 60000;
-        return new Date(dt.getTime() - offset).toISOString().slice(0, 19);
+        return new Date(dt.getTime() - offset).toISOString().slice(0, 16);
+        // 結果例: "2026-11-05T04:33:00"
     };
 
     const startDateElem = document.getElementById("startDate");
