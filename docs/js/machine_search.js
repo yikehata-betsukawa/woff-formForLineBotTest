@@ -213,6 +213,14 @@ function initDates() {
 
 // URLパラメータを読み込んで自動フォームセット ＆ 検索実行する関数
 async function handleUrlQueryParams() {
+    let search = window.location.search;
+    const urlParams = new URLSearchParams(search);
+
+    // liff.state がある場合はデコードして上書き
+    if (urlParams.has("liff.state")) {
+        search = decodeURIComponent(urlParams.get("liff.state"));
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     
     // パラメータが存在しない場合は通常起動
