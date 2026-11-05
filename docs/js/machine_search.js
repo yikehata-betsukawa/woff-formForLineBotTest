@@ -1,6 +1,6 @@
 // 発行された WOFF ID
 // machine_search.js の先頭付近
-const WOFF_ID = "xexAR6FBXSKjXao8xQ7Wvg";
+const WOFF_ID = "xexAR6FBXSkjXao8xQ7Wvg";
 
 // バックエンド FastAPI のベース URL (サーバーの公開 HTTPS アドレスを指定)
 // ★ ドメイン名のみを指定（末尾のスラッシュなし）
