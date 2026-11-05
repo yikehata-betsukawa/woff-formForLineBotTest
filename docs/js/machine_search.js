@@ -44,11 +44,15 @@ async function initWoffApp() {
                 await woff.init({ woffId: WOFF_ID });
                 console.log("WOFF 初期化成功");
 
-                // ログインチェックとプロフィール取得
-                if (woff.isLoggedIn()) {
-                    const profile = await woff.getProfile();
-                    console.log("ログインユーザー:", profile.displayName, profile.userId);
+                // ★ Access_token エラー防止：未ログイン時は自動ログインを実行
+                if (!woff.isLoggedIn()) {
+                    console.warn("Access Token がないためログイン処理を実行します");
+                    woff.login();
+                    return; // ログイン画面リダイレクトが入るため一旦処理を中断
                 }
+
+                const profile = await woff.getProfile();
+                console.log("ログインユーザー:", profile.displayName, profile.userId);
             } catch(woffErr) {
                 console.warn("WOFF SDK初期化スキップ（PCブラウザ直開きのため）:", woffErr);
             }
