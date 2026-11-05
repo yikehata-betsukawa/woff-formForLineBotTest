@@ -165,6 +165,7 @@ function setupDropdownEvents() {
 
 
 // 日時の初期選択（昨日 00:00:00 〜 今日の現在時刻）
+/** 
 function initDates() {
     const now = new Date();
     const yesterday = new Date();
@@ -182,6 +183,28 @@ function initDates() {
     const endDateElem = document.getElementById("endDate");
 
     if (startDateElem) startDateElem.value = toLocalISO(yesterday);
+    if (endDateElem) endDateElem.value = toLocalISO(now);
+}*/
+
+
+// 日時の初期選択（1時間前 〜 現在時刻）
+function initDates() {
+    const now = new Date();
+    
+    // 現在時刻から1時間前（60分 × 60秒 × 1000ミリ秒）を計算
+    const oneHourAgo = new Date(now.getTime() - (60 * 60 * 1000));
+
+    // datetime-local 形式 (YYYY-MM-DDTHH:mm) に成形する関数
+    const toLocalISO = (dt) => {
+        const offset = dt.getTimezoneOffset() * 60000;
+        return new Date(dt.getTime() - offset).toISOString().slice(0, 16);
+    };
+
+    const startDateElem = document.getElementById("startDate");
+    const endDateElem = document.getElementById("endDate");
+
+    // 開始日時に1時間前、終了日時に現在時刻をセット
+    if (startDateElem) startDateElem.value = toLocalISO(oneHourAgo);
     if (endDateElem) endDateElem.value = toLocalISO(now);
 }
 
