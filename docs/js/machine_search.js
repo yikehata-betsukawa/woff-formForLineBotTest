@@ -55,7 +55,10 @@ async function initWoffApp() {
                 // ★ Access_token エラー防止：未ログイン時は自動ログインを実行
                 if (!woff.isLoggedIn()) {
                     console.warn("Access Token がないためログイン処理を実行します");
-                    woff.login();
+                    // redirectUri を明示して標準ブラウザからのログイン認可を通す
+                    woff.login({
+                        redirectUri: "https://yikehata-betsukawa.github.io/woff-formForLineBotTest/machine_search.html"
+                    });
                     return; // ログイン画面リダイレクトが入るため一旦処理を中断
                 }
 
@@ -63,6 +66,13 @@ async function initWoffApp() {
                 console.log("ログインユーザー:", profile.displayName, profile.userId);
             } catch(woffErr) {
                 console.warn("WOFF SDK初期化スキップ（PCブラウザ直開きのため）:", woffErr);
+                // PCブラウザ等で init 失敗時にログインリトライを試みる
+                if (woff && typeof woff.login === "function") {
+                    console.log("catchブロックから fallback ログインを実行");
+                    woff.login({
+                        redirectUri: "https://yikehata-betsukawa.github.io/woff-formForLineBotTest/machine_search.html"
+                    });
+                }
             }
         }
 
