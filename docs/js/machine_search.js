@@ -41,17 +41,23 @@ async function initWoffApp() {
         // 1. WOFF SDK 初期化（最優先で実行し、LINE WORKSアプリ内の認証完了を待つ）
         if (typeof woff !== "undefined") {
             const baseUrl = window.location.origin + window.location.pathname;
+            // URL に ?code= が含まれている場合（＝リダイレクト直後）は再ログインを行わない
+            const hasAuthCode = window.location.search.includes("code=");
 
+            // ★ リダイレクト直後の場合、URLから認可パラメータを除去してクリーンにする
+            if (hasAuthCode) {
+                window.history.replaceState({}, document.title, baseUrl);
+            }
+
+            // WOFF 初期化（クエリ無しの綺麗なURLで実行）
             try {
                 await woff.init({ woffId: WOFF_ID });
                 console.log("WOFF 初期化成功");
             } catch (initErr) {
-                console.warn("WOFF SDK初期化スキップ:", initErr);
+                console.warn("WOFF SDK初期化スキップ（ゲストモード）");
             }
 
-            // URL に ?code= が含まれている場合（＝リダイレクト直後）は再ログインを行わない
-            const hasAuthCode = window.location.search.includes("code=");
-
+            // 未ログイン時のみログイン画面へ
             if (!woff.isLoggedIn() && !hasAuthCode) {
                 console.warn("未ログイン状態のため login() を実行します");
                 woff.login({
