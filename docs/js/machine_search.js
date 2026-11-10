@@ -62,7 +62,8 @@ async function initWoffApp() {
                     console.log("currentUrl:",currentUrl)
                     
                     woff.login({
-                        redirectUri: currentUrl
+                        redirectUri: currentUrl,
+                        scope: ["openid", "profile"]
                     });
                     return;
                 }
