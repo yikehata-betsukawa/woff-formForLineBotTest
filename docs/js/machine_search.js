@@ -54,10 +54,16 @@ async function initWoffApp() {
 
                 // ★ Access_token エラー防止：未ログイン時は自動ログインを実行
                 if (!woff.isLoggedIn()) {
-                    console.warn("Access Token がないためログイン処理を実行します");
-                    // redirectUri を明示して標準ブラウザからのログイン認可を通す
-                    woff.login();
-                    return; // ログイン画面リダイレクトが入るため一旦処理を中断
+                    console.warn("未ログイン状態のため、パラメータ付きで login() を実行します");
+
+                    // PCブラウザ等の外部環境で redirect_uri / scope が欠落するのを防ぐ設定
+                    const currentUrl = window.location.href.split('?')[0].split('#')[0];
+                    
+                    woff.login({
+                        redirectUri: currentUrl,
+                        scope: ["openid", "profile"]
+                    });
+                    return;
                 }
 
                 const profile = await woff.getProfile();
