@@ -40,35 +40,38 @@ async function initWoffApp() {
     try {
         // 1. WOFF SDK 初期化（最優先で実行し、LINE WORKSアプリ内の認証完了を待つ）
         if (typeof woff !== "undefined") {
-            // 現在の純粋なベースURLを動的生成（クエリやハッシュを除去）
-            const baseUrl = window.location.origin + window.location.pathname;
-            // 1. WOFF SDK の初期化
             try {
                 await woff.init({ woffId: WOFF_ID });
                 console.log("WOFF 初期化成功");
-            } catch (initErr) {
-                // トークン自動交換エラー時はログを制御し、画面遷移を優先
-                console.info("WOFF 認証コンテキスト読み込み完了（PCブラウザモード）");
-            }
 
-            // 2. ログイン状態の確認
-            if (!woff.isLoggedIn()) {
-                console.warn("未ログイン状態のため、パラメータ付きで login() を実行します");
+                // 2. ログイン状態の判定
+                const isLoggedIn = woff.isLoggedIn();
+                console.log("【CHECK】ログイン状態 (isLoggedIn):", isLoggedIn);
 
-                // URL末尾のスラッシュ表記ブレを防止したリダイレクトURIを指定
-                woff.login({
-                    redirectUri: baseUrl,
-                    scope: ["openid", "profile"]
-                });
-                return;
-            }
+                // 3. Access Token の直接取得テスト
+                const accessToken = woff.getAccessToken();
+                console.log("【CHECK】Access Token:", accessToken);
 
-            // 3. プロフィール取得（ログイン成功時のみ）
-            try {
+                // ★ Access_token エラー防止：未ログイン時は自動ログインを実行
+                if (!woff.isLoggedIn()) {
+                    console.warn("未ログイン状態のため、パラメータ付きで login() を実行します");
+                    console.log("window.location.href:", window.location.href)
+
+                    // PCブラウザ等の外部環境で redirect_uri / scope が欠落するのを防ぐ設定
+                    const currentUrl = window.location.href.split('?')[0].split('#')[0];
+                    console.log("currentUrl:",currentUrl)
+                    
+                    woff.login({
+                        redirectUri: currentUrl,
+                        scope: ["openid", "profile"]
+                    });
+                    return;
+                }
+
                 const profile = await woff.getProfile();
                 console.log("ログインユーザー:", profile.displayName, profile.userId);
-            } catch (pErr) {
-                console.warn("ユーザープロフィール取得をスキップ（ゲスト閲覧）");
+            } catch(woffErr) {
+                console.warn("WOFF SDK初期化スキップ（PCブラウザ直開きのため）:", woffErr);
             }
         }
 
