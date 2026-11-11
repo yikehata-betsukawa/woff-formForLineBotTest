@@ -420,6 +420,7 @@ async function sendResultToTalk() {
 
     // 2. 送信メッセージの構築
     let textMessage = "";
+    let flexMsg = "";
     if (currentSearchResult.mode === "latest") {
         //textメッセージで送る場合
         textMessage = `【センサー計測値シェア】\n` +
@@ -427,7 +428,7 @@ async function sendResultToTalk() {
                       `■ 現在値: ${currentSearchResult.value} ${currentSearchResult.unit || ''}\n` +
                       `■ 更新日時: ${currentSearchResult.datetime}`;
         //Flexメッセージで送る場合
-        let flexMsg = {
+        flexMsg = {
             "type": "flex",
             "altText": "点検データのご案内",
             "contents": {
