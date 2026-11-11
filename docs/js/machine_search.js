@@ -427,7 +427,7 @@ async function sendResultToTalk() {
                       `■ 項目: ${currentSearchResult.sensor_name}\n` +
                       `■ 現在値: ${currentSearchResult.value} ${currentSearchResult.unit || ''}\n` +
                       `■ 更新日時: ${currentSearchResult.datetime}`;
-                      
+
         //Flexメッセージで送る場合
         flexMsg = {
             "type": "flex",
@@ -436,32 +436,32 @@ async function sendResultToTalk() {
                 "type": "bubble", // ① Bubble Container（カード全体の枠組み）
 
                 "header": {     // ② Header Block（カテゴリ・タイトル領域）
-                "type": "box", "layout": "vertical",
-                "contents": [
-                    { "type": "text", "text": "定期点検報告", "weight": "bold", "color": "#005BAC" }
-                ]
+                    "type": "box", "layout": "vertical",
+                    "contents": [
+                        { "type": "text", "text": "定期点検報告", "weight": "bold", "color": "#005BAC" }
+                    ]
                 },
 
                 "body": {       // ③ Body Block（メインの表データ領域）
                 "type": "box", "layout": "vertical",
-                "contents": [
-                    { "type": "text", "text": "点検完了報告", "weight": "bold", "size": "lg" },
-                    { "type": "separator", "margin": "md" },
-                    {
-                    "type": "box", "layout": "horizontal", // 2列（キー：値）の表形式
                     "contents": [
-                        { "type": "text", "text": "項目", "color": "#aaaaaa", "flex": 2 },
-                        { "type": "text", "text": currentSearchResult.sensor_name, "flex": 4 }
+                        { "type": "text", "text": "点検完了報告", "weight": "bold", "size": "lg" },
+                        { "type": "separator", "margin": "md" },
+                        {
+                            "type": "box", "layout": "horizontal", // 2列（キー：値）の表形式
+                                "contents": [
+                                    { "type": "text", "text": "項目", "color": "#323232", "flex": 2 },
+                                    { "type": "text", "text": currentSearchResult.sensor_name, "flex": 4 }
+                                ]
+                        },
+                        {
+                        "type": "box", "layout": "horizontal",
+                        "contents": [
+                            { "type": "text", "text": "現在値", "color": "#323232", "flex": 2 },
+                            { "type": "text", "text": `${currentSearchResult.value} ${currentSearchResult.unit || ''}`, "weight": "bold", "color": "#1DB446", "flex": 4 }
+                        ]
+                        }
                     ]
-                    },
-                    {
-                    "type": "box", "layout": "horizontal",
-                    "contents": [
-                        { "type": "text", "text": "現在値", "color": "#aaaaaa", "flex": 2 },
-                        { "type": "text", "text": `${currentSearchResult.value} ${currentSearchResult.unit || ''}`, "weight": "bold", "color": "#1DB446", "flex": 4 }
-                    ]
-                    }
-                ]
                 },
 
                 "footer": {     // ④ Footer Block（注記・補足領域）
