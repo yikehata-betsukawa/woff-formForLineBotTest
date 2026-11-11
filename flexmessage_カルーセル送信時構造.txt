@@ -1,0 +1,69 @@
+            let msg = {
+                "type": "flex",
+                "altText": "明細データのご案内",
+                "contents": {
+	                "type": "carousel",
+	                    "contents": [
+		                    {
+                                "type": "bubble",
+                                "body": {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "The Message Bot API enables the client to interact with individual users, by using a message bot account.",
+                                            "wrap": true
+                                        }
+                                    ]
+                                },
+                                "footer": {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        {
+                                            "type": "button",
+                                            "style": "primary",
+                                            "action": {
+                                                "type": "uri",
+                                                "label": "See more",
+                                                "uri": "http://line-works.com"
+                                            },
+                                            "height": "sm"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                "type": "bubble",
+                                "body": {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        {
+                                            "type": "text",
+                                            "text": "Hello, World!",
+                                            "wrap": true
+                                        }
+                                    ]
+                                },
+                                "footer": {
+                                    "type": "box",
+                                    "layout": "horizontal",
+                                    "contents": [
+                                        {
+                                            "type": "button",
+                                            "style": "primary",
+                                            "action": {
+                                                "type": "uri",
+                                                "label": "See more",
+                                                "uri": "http://line-works.com"
+                                            },
+                                            "height": "sm"
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                };

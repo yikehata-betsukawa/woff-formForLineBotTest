@@ -1,0 +1,68 @@
+            let msg = {
+                "type": "flex",
+                "altText": "明細データのご案内",
+                "contents": {
+                    "type": "bubble",
+                    "body": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                            // --- タイトル部分 ---
+                            {
+                                "type": "text",
+                                "text": "受注明細一覧",
+                                "weight": "bold",
+                                "size": "lg",
+                                "margin": "none"
+                            },
+                            { "type": "separator", "margin": "md" }, // 区切り線
+                            
+                            // --- 表の見出し（ヘッダー行） ---
+                            {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "margin": "md",
+                                "contents": [
+                                    { "type": "text", "text": "品名", "size": "xs", "color": "#aaaaaa", "flex": 3 },
+                                    { "type": "text", "text": "数量", "size": "xs", "color": "#aaaaaa", "align": "center", "flex": 1 },
+                                    { "type": "text", "text": "金額", "size": "xs", "color": "#aaaaaa", "align": "end", "flex": 2 }
+                                ]
+                            },
+                            // --- データ行 1 ---
+                            {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "margin": "sm",
+                                "contents": [
+                                    { "type": "text", "text": "WOFF開発セット", "size": "sm", "color": "#666666", "flex": 3 },
+                                    { "type": "text", "text": "1", "size": "sm", "color": "#666666", "align": "center", "flex": 1 },
+                                    { "type": "text", "text": "¥50,000", "size": "sm", "color": "#666666", "align": "end", "flex": 2 }
+                                ]
+                            },
+                            // --- データ行 2 ---
+                            {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "margin": "sm",
+                                "contents": [
+                                    { "type": "text", "text": "サポートライセンス", "size": "sm", "color": "#666666", "flex": 3 },
+                                    { "type": "text", "text": "2", "size": "sm", "color": "#666666", "align": "center", "flex": 1 },
+                                    { "type": "text", "text": "¥20,000", "size": "sm", "color": "#666666", "align": "end", "flex": 2 }
+                                ]
+                            },
+                            { "type": "separator", "margin": "md" }, // 区切り線
+                            
+                            // --- 合計行 ---
+                            {
+                                "type": "box",
+                                "layout": "horizontal",
+                                "margin": "md",
+                                "contents": [
+                                    { "type": "text", "text": "合計", "weight": "bold", "size": "sm", "flex": 4 },
+                                    { "type": "text", "text": "¥70,000", "weight": "bold", "size": "sm", "align": "end", "color": "#1DB446", "flex": 2 }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            };
