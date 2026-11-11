@@ -244,11 +244,13 @@ function initDates() {
 function setupModeToggle() {
     const radioButtons = document.querySelectorAll('input[name="searchMode"]');
     const dateArea = document.getElementById('dateArea');
+    const sendTalkBtn = document.getElementById('sendTalkBtn');
 
     radioButtons.forEach(radio => {
         radio.addEventListener('change', function () {
             if (dateArea) {
                 dateArea.style.display = (this.value === 'history') ? 'block' : 'none';
+                sendTalkBtn.style.display = (this.value === 'history') ? 'none' : 'inline-block';
             }
         });
     });
@@ -404,6 +406,12 @@ async function sendResultToTalk() {
         return;
     }
 
+    //  履歴モードの場合は送信させない（ガード処理）
+    if (currentSearchResult.mode !== "latest") {
+        alert("履歴データの送信はできません。トーク共有は「最新値」の点検結果のみ可能です。");
+        return;
+    }
+
     // 1. WOFF SDK 存在チェック
     if (typeof woff === "undefined") {
         alert("WOFF SDK が読み込まれていません。");
@@ -413,27 +421,64 @@ async function sendResultToTalk() {
     // 2. 送信メッセージの構築
     let textMessage = "";
     if (currentSearchResult.mode === "latest") {
+        //textメッセージで送る場合
         textMessage = `【センサー計測値シェア】\n` +
                       `■ 項目: ${currentSearchResult.sensor_name}\n` +
                       `■ 現在値: ${currentSearchResult.value} ${currentSearchResult.unit || ''}\n` +
                       `■ 更新日時: ${currentSearchResult.datetime}`;
-    } else {
-        const latestRow = currentSearchResult.data && currentSearchResult.data.length > 0 
-            ? currentSearchResult.data[currentSearchResult.data.length - 1] 
-            : null;
-        
-        const latestValText = latestRow ? `${latestRow.value} ${latestRow.unit || ''}` : "データなし";
-        textMessage = `【センサー履歴データシェア】\n` +
-                      `■ 項目: ${currentSearchResult.sensor_name}\n` +
-                      `■ 対象期間: ${currentSearchResult.period}\n` +
-                      `■ 直近の計測値: ${latestValText}`;
+        //Flexメッセージで送る場合
+        let flexMsg = {
+            "type": "flex",
+            "altText": "点検データのご案内",
+            "contents": {
+                "type": "bubble",
+                "body": {
+                    "type": "box",
+                    "layout": "vertical",
+                    "contents": [
+                        { "type": "text", "text": "点検完了報告", "weight": "bold", "size": "lg" },
+                        { "type": "separator", "margin": "md" },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "margin": "md",
+                            "contents": [
+                                { "type": "text", "text": "項目", "size": "sm", "color": "#aaaaaa", "flex": 2 },
+                                { "type": "text", "text": currentSearchResult.sensor_name, "size": "sm", "flex": 4 }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "margin": "sm",
+                            "contents": [
+                                { "type": "text", "text": "現在値", "size": "sm", "color": "#aaaaaa", "flex": 2 },
+                                { "type": "text", "text": `${currentSearchResult.value} ${currentSearchResult.unit || ''}`, "size": "sm", "weight": "bold", "color": "#1DB446", "flex": 4 }
+                            ]
+                        },
+                        {
+                            "type": "box",
+                            "layout": "horizontal",
+                            "margin": "sm",
+                            "contents": [
+                                { "type": "text", "text": "更新日時", "size": "xs", "color": "#aaaaaa", "flex": 2 },
+                                { "type": "text", "text": currentSearchResult.datetime, "size": "xs", "color": "#aaaaaa", "flex": 4 }
+                            ]
+                        }
+                    ]
+                }
+            }
+        };
     }
 
     // 3. トークルームへの送信実行
     try {
         // isInClient 判定を挟まず直接 sendMessages を試行する
-        await woff.sendMessage({ content: textMessage });
-        alert('トークルームに送信しました！');
+        //await woff.sendMessage({ content: textMessage });
+        //Flexメッセージで送る場合
+        await woff.sendFlexMessage({ flex: flexMsg });
+        alert('点検実績をトークルームに送信しました！');
+
     } catch (error) {
         console.error("sendMessagesエラー:", error);
         // エラー内容を画面にポップアップ表示して原因を特定
