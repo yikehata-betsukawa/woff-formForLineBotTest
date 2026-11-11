@@ -398,6 +398,7 @@ function changePage(direction) {
 
 // ★ トーク送信処理関数（安全・直接送信版）
 async function sendResultToTalk() {
+    console.log("currentSearchResult:",currentSearchResult);
     if (!currentSearchResult) {
         alert("送信する検索結果がありません。");
         return;
@@ -431,14 +432,7 @@ async function sendResultToTalk() {
     // 3. トークルームへの送信実行
     try {
         // isInClient 判定を挟まず直接 sendMessages を試行する
-        await woff.sendMessages({
-            messages: [
-                {
-                    type: 'text',
-                    text: textMessage
-                }
-            ]
-        });
+        await woff.sendMessages({ content: textMessage });
         alert('トークルームに送信しました！');
     } catch (error) {
         console.error("sendMessagesエラー:", error);
