@@ -432,7 +432,7 @@ async function sendResultToTalk() {
     // 3. トークルームへの送信実行
     try {
         // isInClient 判定を挟まず直接 sendMessages を試行する
-        await woff.sendMessages({ content: textMessage });
+        await woff.sendMessage({ content: textMessage });
         alert('トークルームに送信しました！');
     } catch (error) {
         console.error("sendMessagesエラー:", error);
