@@ -448,11 +448,11 @@ async function sendResultToTalk() {
                         { "type": "text", "text": "点検完了報告", "weight": "bold", "size": "lg" },
                         { "type": "separator", "margin": "md" },
                         {
-                            "type": "box", "layout": "horizontal", // 2列（キー：値）の表形式
-                                "contents": [
-                                    { "type": "text", "text": "項目", "color": "#323232", "flex": 2 },
-                                    { "type": "text", "text": currentSearchResult.sensor_name, "flex": 4 }
-                                ]
+                        "type": "box", "layout": "horizontal", // 2列（キー：値）の表形式
+                        "contents": [
+                            { "type": "text", "text": "項目", "color": "#323232", "flex": 2 },
+                            { "type": "text", "text": currentSearchResult.sensor_name, "flex": 4 }
+                        ]
                         },
                         {
                         "type": "box", "layout": "horizontal",
@@ -477,10 +477,14 @@ async function sendResultToTalk() {
     // 3. トークルームへの送信実行
     try {
         // isInClient 判定を挟まず直接 sendMessages を試行する
+        // LINE WORKS への送信が完全に終わるまで、ここで一時停止して待つ
         //await woff.sendMessage({ content: textMessage });
         //Flexメッセージで送る場合
         await woff.sendFlexMessage({ flex: flexMsg });
+        // 送信が成功したことを確認してからポップアップを出す
         alert('点検実績をトークルームに送信しました！');
+        // アラートを閉じた後、安全に WOFF 画面を閉じる
+        await woff.closeWindow();
 
     } catch (error) {
         console.error("sendMessagesエラー:", error);
