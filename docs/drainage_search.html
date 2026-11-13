@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>センサーデータ検索 - 塗装設備 排水処理場</title>
+  <link rel="stylesheet" href="./css/drainage_search.css?v=1.0">
+  <script charset="utf-8" src="https://static.worksmobile.net/static/wm/woff/edge/3.7.4/sdk.js" defer></script>
+</head>
+<body>
+  <div class="card">
+    <h3>🔍 センサーデータ検索</h3>
+
+    <div class="form-group">
+      <label>検索モード</label>
+      <div class="radio-group">
+        <label class="radio-label">
+          <input type="radio" name="searchMode" value="latest" checked> ⚡ 最新値
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="searchMode" value="history"> 📈 履歴データ
+        </label>
+      </div>
+    </div>
+
+    <div id="dateArea" style="display: none;">
+      <div class="form-group">
+        <label for="startDate">開始日時</label>
+        <input type="datetime-local" id="startDate">
+      </div>
+      <div class="form-group">
+        <label for="endDate">終了日時</label>
+        <input type="datetime-local" id="endDate">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="groupSelect">データグループ：</label>
+      <select id="groupSelect">
+        <option value="">読み込み中...</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="itemSelect">センサ項目：</label>
+      <select id="itemSelect" disabled>
+        <option value="">グループを選択してください</option>
+      </select>
+    </div>
+
+    <button type="button" id="searchBtn">検索実行</button>
+  </div>
+
+  <div class="card" id="resultCard" style="display: none;">
+    <h4>📊 検索結果</h4>
+    <div id="resultSummary" class="result-summary"></div>
+    <div id="resultContent"></div>
+
+    <div id="paginationArea" class="pagination">
+      <button type="button" id="prevPageBtn">◀ 前へ</button>
+      <span id="pageInfo" style="font-size: 12px; color: #555;"></span>
+      <button type="button" id="nextPageBtn">次へ ▶</button>
+    </div>
+  </div>
+
+  <script src="./js/drainage_search.js?v=1.0"></script>
+</body>
+</html>
